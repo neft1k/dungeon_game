@@ -4,7 +4,7 @@
 
 **Сборка:**
 ```bash
-go build -o dungeon_game ./cmd/
+make build
 ```
 
 **Запуск с файлом событий:**
@@ -17,19 +17,19 @@ go build -o dungeon_game ./cmd/
 ./dungeon_game config.json < events
 ```
 
-**Или через go run:**
-```bash
-go run ./cmd/ config.json events
-```
-
 **Тесты:**
 ```bash
-go test ./...
+make test
+```
+
+**Линтер:**
+```bash
+make lint
 ```
 
 **Бенчмарки:**
 ```bash
-go test ./... -bench=. -benchmem -run=^$
+make bench
 ```
 
 ---

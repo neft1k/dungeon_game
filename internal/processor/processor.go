@@ -11,6 +11,7 @@ type Processor struct {
 	h        EventHandler
 	handlers map[model.EventID]func(model.Event, io.Writer)
 	closeAt  time.Time
+	closed   bool
 }
 
 func New(h EventHandler, closeAt time.Time) *Processor {
@@ -50,8 +51,9 @@ func (p *Processor) Run(events []model.Event, out io.Writer) []*model.Player {
 }
 
 func (p *Processor) closeIfExpired(t time.Time) {
-	if t.Before(p.closeAt) {
+	if p.closed || t.Before(p.closeAt) {
 		return
 	}
 	p.h.CloseDungeon(p.closeAt)
+	p.closed = true
 }
