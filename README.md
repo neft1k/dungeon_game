@@ -173,24 +173,3 @@ Final report:
 [DISQUAL] 3 [00:00:00, 00:00:00, 00:00:00] HP:100
 ```
 
-## How to run
-
-**Build:**
-```bash
-go build -o dungeon_game ./cmd/
-```
-
-**Run with events file:**
-```bash
-./dungeon_game config.json events
-```
-
-**Run with stdin:**
-```bash
-./dungeon_game config.json < events
-```
-
-**Or via go run:**
-```bash
-go run ./cmd/ config.json events
-```
