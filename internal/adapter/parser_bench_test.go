@@ -3,6 +3,8 @@ package adapter
 import (
 	"strings"
 	"testing"
+
+	"dungeon_game/internal/model"
 )
 
 var benchEvents = func() string {
@@ -31,8 +33,12 @@ var benchEvents = func() string {
 	return sb.String()
 }()
 
+type noopConsumer struct{}
+
+func (noopConsumer) Handle(model.Event) {}
+
 func BenchmarkParseEvents(b *testing.B) {
 	for b.Loop() {
-		_, _ = ParseEvents(strings.NewReader(benchEvents))
+		_ = ParseEvents(strings.NewReader(benchEvents), noopConsumer{})
 	}
 }

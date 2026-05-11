@@ -37,6 +37,7 @@ func (h *Handler) EnterDungeon(e model.Event, out io.Writer) {
 		return
 	}
 	if player.Status != model.StatusActive {
+		emit(out, e.Time, e.PlayerID, fmt.Sprintf("makes imposible move [%d]", e.ID))
 		return
 	}
 	if e.Time.Before(h.openAt) || !e.Time.Before(h.closeAt) {

@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"io"
 	"strings"
 	"testing"
 	"time"
@@ -21,6 +22,20 @@ type parseTestCase struct {
 	input   string
 	want    []model.Event
 	wantErr bool
+}
+
+type eventCollector struct {
+	events []model.Event
+}
+
+func (c *eventCollector) Handle(e model.Event) {
+	c.events = append(c.events, e)
+}
+
+func collectEvents(r io.Reader) ([]model.Event, error) {
+	c := &eventCollector{}
+	err := ParseEvents(r, c)
+	return c.events, err
 }
 
 func TestParseEvents(t *testing.T) {
@@ -103,7 +118,7 @@ func TestParseEvents(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseEvents(strings.NewReader(tt.input))
+			got, err := collectEvents(strings.NewReader(tt.input))
 
 			if tt.wantErr {
 				if err == nil {

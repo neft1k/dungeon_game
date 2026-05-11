@@ -65,6 +65,17 @@ func TestEnterDungeon_Unregistered(t *testing.T) {
 	}
 }
 
+func TestEnterDungeon_DeadPlayer(t *testing.T) {
+	h, repo := newHandler()
+	p := repo.RegisterPlayer(1)
+	p.Status = model.StatusDead
+	b := out()
+	h.EnterDungeon(model.Event{Time: mustTime("14:30:00"), ID: model.EventEnterDungeon, PlayerID: 1}, b)
+	if !strings.Contains(b.String(), "makes imposible move") {
+		t.Errorf("мёртвый игрок не может войти в данж, получено: %q", b.String())
+	}
+}
+
 func TestEnterDungeon_Valid(t *testing.T) {
 	h, repo := newHandler()
 	repo.RegisterPlayer(1)

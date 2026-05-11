@@ -11,9 +11,7 @@ import (
 	"dungeon_game/internal/model"
 )
 
-func ParseEvents(r io.Reader) ([]model.Event, error) {
-	var events []model.Event
-
+func ParseEvents(r io.Reader, consumer EventConsumer) error {
 	scanner := bufio.NewScanner(r)
 	lineNum := 0
 
@@ -26,17 +24,17 @@ func ParseEvents(r io.Reader) ([]model.Event, error) {
 
 		event, err := parseLine(line)
 		if err != nil {
-			return nil, fmt.Errorf("line %d: %w", lineNum, err)
+			return fmt.Errorf("line %d: %w", lineNum, err)
 		}
 
-		events = append(events, event)
+		consumer.Handle(event)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("reading input: %w", err)
+		return fmt.Errorf("reading input: %w", err)
 	}
 
-	return events, nil
+	return nil
 }
 
 func parseLine(line string) (model.Event, error) {

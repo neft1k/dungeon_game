@@ -11,13 +11,15 @@ type Processor struct {
 	h        EventHandler
 	handlers map[model.EventID]func(model.Event, io.Writer)
 	closeAt  time.Time
+	out      io.Writer
 	closed   bool
 }
 
-func New(h EventHandler, closeAt time.Time) *Processor {
+func New(h EventHandler, closeAt time.Time, out io.Writer) *Processor {
 	return &Processor{
 		h:       h,
 		closeAt: closeAt,
+		out:     out,
 		handlers: map[model.EventID]func(model.Event, io.Writer){
 			model.EventRegister:     h.Register,
 			model.EventEnterDungeon: h.EnterDungeon,
@@ -34,19 +36,18 @@ func New(h EventHandler, closeAt time.Time) *Processor {
 	}
 }
 
-func (p *Processor) Run(events []model.Event, out io.Writer) []*model.Player {
-	for _, e := range events {
-		p.closeIfExpired(e.Time)
+func (p *Processor) Handle(e model.Event) {
+	p.closeIfExpired(e.Time)
 
-		h, ok := p.handlers[e.ID]
-		if !ok {
-			continue
-		}
-		h(e, out)
+	h, ok := p.handlers[e.ID]
+	if !ok {
+		return
 	}
+	h(e, p.out)
+}
 
+func (p *Processor) Finish() []*model.Player {
 	p.closeIfExpired(p.closeAt)
-
 	return p.h.Players()
 }
 

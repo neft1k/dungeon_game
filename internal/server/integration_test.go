@@ -55,6 +55,39 @@ Final report:
 [DISQUAL] 3 [00:00:00, 00:00:00, 00:00:00] HP:100
 `
 
+const cannotContEvents = `[14:00:00] 1 1
+[14:10:00] 1 2
+[14:20:00] 1 11 50
+[14:25:00] 1 9 out of potions
+`
+
+const cannotContOutput = `[14:00:00] Player [1] registered
+[14:10:00] Player [1] entered the dungeon
+[14:20:00] Player [1] recieved [50] of damage
+[14:25:00] Player [1] cannot continue due to [out of potions]
+Final report:
+[DISQUAL] 1 [00:15:00, 00:00:00, 00:00:00] HP:50
+`
+
+func TestIntegration_CannotContinue(t *testing.T) {
+	cfg := &config.Config{
+		Floors:   2,
+		Monsters: 2,
+		OpenAt:   "14:05:00",
+		Duration: 2,
+	}
+
+	var out strings.Builder
+	if err := Start(cfg, strings.NewReader(cannotContEvents), &out); err != nil {
+		t.Fatalf("неожиданная ошибка: %v", err)
+	}
+
+	got := out.String()
+	if got != cannotContOutput {
+		t.Errorf("вывод не совпадает\nполучено:\n%s\nожидалось:\n%s", got, cannotContOutput)
+	}
+}
+
 func TestIntegration_ReadmeExample(t *testing.T) {
 	cfg := &config.Config{
 		Floors:   2,

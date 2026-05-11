@@ -13,11 +13,6 @@ import (
 )
 
 func Start(cfg *config.Config, in io.Reader, out io.Writer) error {
-	events, err := adapter.ParseEvents(in)
-	if err != nil {
-		return err
-	}
-
 	openAt, _ := cfg.OpenTime()
 	closeAt, _ := cfg.CloseTime()
 
@@ -28,9 +23,13 @@ func Start(cfg *config.Config, in io.Reader, out io.Writer) error {
 	})
 
 	h := handler.New(repo, openAt, closeAt)
-	proc := processor.New(h, closeAt)
+	proc := processor.New(h, closeAt, out)
 
-	players := proc.Run(events, out)
+	if err := adapter.ParseEvents(in, proc); err != nil {
+		return err
+	}
+
+	players := proc.Finish()
 	adapter.FormatReport(report.Build(players), out)
 
 	return nil
